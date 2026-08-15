@@ -1,5 +1,7 @@
 # Advent of Code Solutions
 
+[![Tests](https://github.com/HoosseinRahimi/Advent-of-Code/actions/workflows/tests.yml/badge.svg)](https://github.com/HoosseinRahimi/Advent-of-Code/actions/workflows/tests.yml)
+
 My Python solutions and experiments for **Advent of Code**.
 
 This repository keeps solution code organised by year and day while leaving personal puzzle input files out of version control.
