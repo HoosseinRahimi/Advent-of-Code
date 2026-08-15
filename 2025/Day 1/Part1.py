@@ -1,55 +1,68 @@
+from __future__ import annotations
+
+import argparse
 import re
+from pathlib import Path
+
+Instruction = tuple[str, int]
+INSTRUCTION_RE = re.compile(r"([LR])(\d+)")
 
 
+def parse_instruction(line: str) -> Instruction:
+    match = INSTRUCTION_RE.fullmatch(line.strip())
+    if not match:
+        raise ValueError(f"invalid instruction: {line!r}")
+    direction, distance = match.groups()
+    return direction, int(distance)
 
-def  fileRead(file_name):
-    result=[]
-    with open (file_name) as f:
-        for line in f:
-            line=line.strip()
-            if not line:
+
+def read_instructions(file_name: str | Path) -> list[Instruction]:
+    instructions: list[Instruction] = []
+    with open(file_name, "r", encoding="utf-8") as file:
+        for line_number, line in enumerate(file, start=1):
+            if not line.strip():
                 continue
-            result.append(sepNumAndStr(line))
-    
-    return result
+            try:
+                instructions.append(parse_instruction(line))
+            except ValueError as exc:
+                raise ValueError(f"line {line_number}: {exc}") from exc
+    return instructions
 
 
-def sepNumAndStr (line:str)->tuple[str,str]:
-    Tokens=re.findall(r'[^0-9]+|\d+',line)
-    Numbers:str=''
-    strings:str=''
-    for element in Tokens:
-        if element.isdigit():
-            Numbers+=element
+def count_zero_landings(
+    instructions: list[Instruction],
+    *,
+    start: int = 50,
+    dial_size: int = 100,
+) -> int:
+    """Count instructions that leave the dial exactly at zero."""
+    if dial_size <= 0:
+        raise ValueError("dial_size must be positive")
+
+    position = start % dial_size
+    counter = 0
+
+    for direction, distance in instructions:
+        if direction == "R":
+            position = (position + distance) % dial_size
+        elif direction == "L":
+            position = (position - distance) % dial_size
         else:
-            strings+=element
-    
-    return Numbers,strings
+            raise ValueError(f"unknown direction: {direction!r}")
 
-
-def finalAnswer(result):
-    lock:int=50
-    counter:int=0
-    for i in result :
-            i_cal=int(i[0])
-        
-            
-            if i[1]=='R':   
-                    lock=lock+i_cal
-            
-            elif i[1]=='L':
-                    lock=lock-i_cal
-            
-            lock=lock%100
-        
-            if lock==0:
-                counter+=1                         
+        if position == 0:
+            counter += 1
 
     return counter
 
 
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Advent of Code 2025 — Day 1, Part 1")
+    parser.add_argument("input", type=Path, help="Path to the puzzle input file")
+    args = parser.parse_args()
+
+    print(count_zero_landings(read_instructions(args.input)))
 
 
-result=fileRead(r'\\path to file')
-answer=finalAnswer(result)
-print(answer)
+if __name__ == "__main__":
+    main()
