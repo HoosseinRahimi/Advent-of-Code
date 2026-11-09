@@ -102,3 +102,7 @@ The repository `.gitignore` excludes `inputs/`.
 ## License
 
 See [`LICENSE`](LICENSE).
+
+## 2026
+
+Solutions for Advent of Code 2026 will be added here from 1 December 2026, organised by day, in the same structure as previous years.
